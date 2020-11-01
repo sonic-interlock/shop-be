@@ -1,7 +1,7 @@
 module.exports = [
-    {id: '1', cost: 10, weight: 1, color: 'red'},
-    {id: '2', cost: 20, weight: 2, color: 'white'},
-    {id: '3', cost: 30, weight: 3, color: 'sand'},
-    {id: '4', cost: 40, weight: 4, color: 'gray'},
-    {id: '5', cost: 50, weight: 5, color: 'black'},
+    {id: '1', price: 10, title: 'Oliver', description: 'Red cat'},
+    {id: '2', price: 20, title: 'Leo', description: 'White cat'},
+    {id: '3', price: 30, title: 'Milo', description: 'Sand cat'},
+    {id: '4', price: 40, title: 'Simba', description: 'Gray cat'},
+    {id: '5', price: 50, title: 'Tiger', description: 'Black cat'},
 ]
