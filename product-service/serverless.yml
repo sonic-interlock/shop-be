@@ -35,6 +35,12 @@ functions:
       - http:
           path: products
           method: get
+  addProduct:
+    handler: handler.addProduct
+    events:
+      - http:
+          path: products
+          method: post
 
   getProductsById:
     handler: handler.getProductsById

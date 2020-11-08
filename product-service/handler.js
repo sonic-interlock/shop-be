@@ -18,8 +18,9 @@ async function runQuery(query) {
     const client = new Client(dbOptions);
     await client.connect();
     try {
-        const { rows: result } = await client.query(query);
-        return result;
+        const result = await client.query(query);
+        console.log(result)
+        return result.rows;
     } finally {
         client.end();
     }
@@ -55,11 +56,9 @@ module.exports.getProductsList = async event => {
 
 
 module.exports.getProductsById = async event => {
-  console.log('getProductsById', event);
   const id = event.pathParameters.id;
   const [cat] = await runQuery(`select * from products 
     inner join stocks on products.id=stocks.product_id and products.id=${id};`);
-  console.log(cat);
   if (cat) {
     return {
       statusCode: 200,
@@ -74,3 +73,21 @@ module.exports.getProductsById = async event => {
     }
   }
 };
+
+module.exports.addProduct = async event => {
+  console.log(event);
+  const body = JSON.parse(event.body);
+  const {title, description, price, count} = body;
+  const [{product_id: newId}] = await runQuery(`
+    with product_insert as (
+      INSERT INTO products (title, description, price)
+        VALUES('${title}', '${description}', ${price}) returning id
+    )
+    INSERT INTO stocks (product_id, count) 
+      VALUES((select id from product_insert), ${count}) returning *;
+`);
+  return {
+    statusCode: 200, headers,
+    body: `{id: ${newId}}`
+  }
+}
