@@ -11,7 +11,7 @@ const headers = {
 }
 
 module.exports.importProductsFile = async event => {
-  const name = event.queryParameters.name;
+  const name = event.queryStringParameters.name;
   const params = {
     Bucket: 'da-rs-app-bucket',
     Key: 'uploaded/'+name,
