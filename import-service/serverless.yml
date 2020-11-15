@@ -43,3 +43,12 @@ functions:
             parameters:
               querystrings:
                 name: true
+  importFileParser:
+    handler: handler.importFileParser
+    events:
+      - s3:
+          bucket: da-rs-app-bucket
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: images/
+          existing: true
