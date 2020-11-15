@@ -25,7 +25,11 @@ provider:
   runtime: nodejs12.x
   stage: dev
   region: eu-west-1
-  environment:
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action: "s3:*"
+      Resource:
+        - "arn:aws:s3:::da-rs-app-bucket/*"
 
 
 functions:
@@ -35,3 +39,7 @@ functions:
       - http:
           path: /import
           method: get
+          request:
+            parameters:
+              querystrings:
+                name: true

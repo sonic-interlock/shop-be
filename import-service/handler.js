@@ -1,5 +1,8 @@
 'use strict';
 
+const AWS = require('aws-sdk');
+const s3 = new AWS.S3({region: 'eu-west-1'});
+
 const headers = {
   'Content-Type': 'application/json',
   'Access-Control-Allow-Origin': '*',
@@ -8,12 +11,22 @@ const headers = {
 }
 
 module.exports.importProductsFile = async event => {
-  const data = await runQuery(`select * from products 
-    full join stocks on products.id=stocks.product_id;`)
-  const cats = data.map(filterFields)
-  return {
-    statusCode: 200,
-    headers,
-    body: JSON.stringify(cats),
-  };
+  const name = event.queryParameters.name;
+  const params = {
+    Bucket: 'da-rs-app-bucket',
+    Key: 'uploaded/'+name,
+    Expires: 60,
+    ContentType: 'text/csv'
+  }
+  return new Promise((res, rej) => {
+    s3.getSignedUrl('putObject', params, (err, url) => {
+      if (err) rej(err);
+
+      res({
+        statusCode: 200,
+        headers,
+        body: url,
+      })
+    })
+  })
 };
