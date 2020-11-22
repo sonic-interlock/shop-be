@@ -34,9 +34,15 @@ provider:
       Action: "sqs:*"
       Resource:
         - Fn::GetAtt: [SQSQueue, Arn]
+    - Effect: "Allow"
+      Action: "sns:*"
+      Resource:
+        Ref: SNSTopic
   environment:
     SQS_URL:
       Ref: SQSQueue
+    SNS_ARN:
+      Ref: SNSTopic
 
 resources:
   Resources:
@@ -44,6 +50,17 @@ resources:
       Type: AWS::SQS::Queue
       Properties:
         QueueName: rs-app-queue
+    SNSTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: rs-app-sns-topic
+    SNSSubscription:
+      Type: AWS::SNS::Subscription
+      Properties:
+        Endpoint: sonic-interlock@example.com
+        Protocol: email
+        TopicArn:
+          Ref: SNSTopic
   Outputs:
     SQSQueueUrl:
       Value:

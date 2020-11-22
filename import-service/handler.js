@@ -34,6 +34,8 @@ module.exports.importProductsFile = async event => {
 
 module.exports.importFileParser = async event => {
   const sqs = new AWS.SQS();
+  const sns = new AWS.SNS();
+  const allData = [];
   const streamsSent = event.Records.map(async record => {
     const params = {
       Bucket: bucket,
@@ -48,12 +50,18 @@ module.exports.importFileParser = async event => {
               MessageBody: JSON.stringify(parsed)
             }).promise()
           )
+          allData.push(parsed);
         });
         stream.on('error', err => rej(err));
         stream.on('end', () => res())
     })
 
     await dataParsed;
+    await sns.publish({
+      Subject: 'New cats has been added to the DB',
+      Message: JSON.stringify(allData),
+      TopicArn: process.env.SNS_ARN
+    }).promise();
     return Promise.all(dataSent);
   })
 
