@@ -28,6 +28,12 @@ provider:
   environment:
 
 
+  iamRoleStatements:
+      - Effect: Allow
+        Action: "sqs:*"
+        Resource:
+          - "${cf:import-service-${self:provider.stage}.SQSQueueArn}"
+
 functions:
   getProductsList:
     handler: handler.getProductsList
@@ -41,6 +47,7 @@ functions:
       - http:
           path: products
           method: post
+
   getProductsById:
     handler: handler.getProductsById
     events:
@@ -52,7 +59,4 @@ functions:
     events:
       - sqs:
           batchSize: 5
-          arn:
-            Fn::GetAtt:
-              - SQSQueue
-              - Arn
+          arn: "${cf:import-service-${self:provider.stage}.SQSQueueArn}"

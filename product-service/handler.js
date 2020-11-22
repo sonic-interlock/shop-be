@@ -18,6 +18,7 @@ async function runQuery(query) {
     const client = new Client(dbOptions);
     await client.connect();
     try {
+        console.log(query);
         const result = await client.query(query);
         console.log(result)
         return result.rows;
@@ -92,7 +93,19 @@ module.exports.addProduct = async event => {
 }
 
 module.exports.catalogBatchProcess = async event => {
-  console.log(event);
-  console.log(event.Resources);
-  return {statusCode: 200}
+  const inserted = event.Records.map(async record => {
+    const body = JSON.parse(record.body);
+    const {title, description, price} = body;
+    const count = 1;
+    const [{product_id: newId}] = await runQuery(`
+      with product_insert as (
+        INSERT INTO products (title, description, price)
+          VALUES('${title}', '${description}', ${price}) returning id
+      )
+      INSERT INTO stocks (product_id, count) 
+        VALUES((select id from product_insert), ${count}) returning *;
+  `);
+  })
+
+  return Promise.all(inserted).then(() => ({statusCode: 200}));
 }

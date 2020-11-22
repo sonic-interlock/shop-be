@@ -34,7 +34,7 @@ module.exports.importProductsFile = async event => {
 
 module.exports.importFileParser = async event => {
   const sqs = new AWS.SQS();
-  const streams = event.Records.map(record => {
+  const streamsSent = event.Records.map(async record => {
     const params = {
       Bucket: bucket,
       Key: record.s3.object.key
@@ -43,22 +43,20 @@ module.exports.importFileParser = async event => {
     const dataSent = [];
     const dataParsed = new Promise((res, rej) => {
         stream.on('data', parsed => {
-          dataSent.push(new Promise((res, rej) => {
-            sqs.sendMessage({
+          dataSent.push(sqs.sendMessage({
               QueueUrl: process.env.SQS_URL,
-              MessageBody: parsed
-            }, (err, response) => {
-              if (err) rej(err);
-              res(response)
-            })
-          }))
+              MessageBody: JSON.stringify(parsed)
+            }).promise()
+          )
         });
         stream.on('error', err => rej(err));
         stream.on('end', () => res())
-    });
-    return Promise.all([dataParsed].concat(dataSent));
+    })
+
+    await dataParsed;
+    return Promise.all(dataSent);
   })
 
-  return Promise.all(streams).then(() => ({headers, statusCode: 200}));
+  return Promise.all(streamsSent).then(() => ({headers, statusCode: 200}));
   
 }

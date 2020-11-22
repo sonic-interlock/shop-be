@@ -31,7 +31,7 @@ provider:
       Resource:
         - "arn:aws:s3:::da-rs-app-bucket/*"
     - Effect: "Allow"
-      Action: "Sqs:*"
+      Action: "sqs:*"
       Resource:
         - Fn::GetAtt: [SQSQueue, Arn]
   environment:
@@ -44,6 +44,14 @@ resources:
       Type: AWS::SQS::Queue
       Properties:
         QueueName: rs-app-queue
+  Outputs:
+    SQSQueueUrl:
+      Value:
+        Ref: SQSQueue
+
+    SQSQueueArn:
+      Value:
+        Fn::GetAtt: [ SQSQueue, Arn ]
 
 functions:
   importProductsFile:
