@@ -75,7 +75,6 @@ module.exports.getProductsById = async event => {
 };
 
 module.exports.addProduct = async event => {
-  console.log(event);
   const body = JSON.parse(event.body);
   const {title, description, price, count} = body;
   const [{product_id: newId}] = await runQuery(`
@@ -90,4 +89,10 @@ module.exports.addProduct = async event => {
     statusCode: 200, headers,
     body: `{id: ${newId}}`
   }
+}
+
+module.exports.catalogBatchProcess = async event => {
+  console.log(event);
+  console.log(event.Resources);
+  return {statusCode: 200}
 }

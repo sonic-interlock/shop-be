@@ -41,10 +41,18 @@ functions:
       - http:
           path: products
           method: post
-
   getProductsById:
     handler: handler.getProductsById
     events:
       - http:
           path: products/{id}
           method: get
+  catalogBatchProcess:
+    handler: handler.catalogBatchProcess
+    events:
+      - sqs:
+          batchSize: 5
+          arn:
+            Fn::GetAtt:
+              - SQSQueue
+              - Arn
