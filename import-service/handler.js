@@ -33,17 +33,30 @@ module.exports.importProductsFile = async event => {
 };
 
 module.exports.importFileParser = async event => {
+  const sqs = new AWS.SQS();
   const streams = event.Records.map(record => {
     const params = {
       Bucket: bucket,
       Key: record.s3.object.key
     }
     const stream = s3.getObject(params).createReadStream().pipe(csv());
-    return new Promise((res, rej) => {
-        stream.on('data', d => console.log('data', d));
+    const dataSent = [];
+    const dataParsed = new Promise((res, rej) => {
+        stream.on('data', parsed => {
+          dataSent.push(new Promise((res, rej) => {
+            sqs.sendMessage({
+              QueueUrl: process.env.SQS_URL,
+              MessageBody: parsed
+            }, (err, response) => {
+              if (err) rej(err);
+              res(response)
+            })
+          }))
+        });
         stream.on('error', err => rej(err));
         stream.on('end', () => res())
     });
+    return Promise.all([dataParsed].concat(dataSent));
   })
 
   return Promise.all(streams).then(() => ({headers, statusCode: 200}));
