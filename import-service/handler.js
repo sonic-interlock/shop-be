@@ -1,7 +1,7 @@
 'use strict';
 
 const AWS = require('aws-sdk');
-const s3 = new AWS.S3({region: 'eu-west-1'});
+const s3 = new AWS.S3({region: 'eu-west-1', signatureVersion: "v4"});
 const csv = require('csv-parser')
 const bucket = 'da-rs-app-bucket';
 const headers = {
