@@ -26,6 +26,11 @@ provider:
   stage: dev
   region: eu-west-1
   environment:
+    PG_HOST: lesson4-instance.celjvgydsgep.eu-west-1.rds.amazonaws.com
+    PG_PORT: 5432
+    PG_DATABASE: lesson4
+    PG_USERNAME: postgres
+    PG_PASSWORD: PnvjhD6DrBjJ4KniGdxO
 
 
   iamRoleStatements:
